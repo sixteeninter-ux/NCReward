@@ -21,6 +21,7 @@ let userAddress = null;
 
 let ncToken = null;
 let rewardCore = null;
+let rewardVault = null;
 let rewardStaking = null;
 
 let countdownTimer = null;
@@ -359,6 +360,7 @@ function resetWalletConnection() {
 
   ncToken = null;
   rewardCore = null;
+   rewardVault =null;
   rewardStaking = null;
 
   stopCountdown();
@@ -675,7 +677,14 @@ async function ensureBSCNetwork() {
   }
 }
 
-
+function getRewardVaultAddress() {
+  return getAddress(
+    "REWARD_VAULT",
+    "REWARD_VAULT_V1",
+    "rewardVault",
+    "rewardVaultAddress"
+  );
+}
 /* =========================================================
    CREATE CONTRACTS
 ========================================================= */
@@ -683,8 +692,8 @@ async function ensureBSCNetwork() {
 function createContracts() {
   const ncAddress = getNCAddress();
   const coreAddress = getRewardCoreAddress();
-  const stakingAddress =
-    getRewardStakingAddress();
+  const vaultAddress = getRewardVaultAddress();
+  const stakingAddress = getRewardStakingAddress();
 
   if (!ncAddress) {
     throw new Error(
@@ -695,6 +704,12 @@ function createContracts() {
   if (!coreAddress) {
     throw new Error(
       "ไม่พบ Reward Core Address ใน config.js"
+    );
+  }
+
+  if (!vaultAddress) {
+    throw new Error(
+      "ไม่พบ Reward Vault Address ใน config.js"
     );
   }
 
@@ -722,11 +737,17 @@ function createContracts() {
     );
   }
 
+
+  /* NC TOKEN */
+
   ncToken = new ethers.Contract(
     ncAddress,
     window.NC_TOKEN_ABI,
     signer
   );
+
+
+  /* REWARD CORE */
 
   rewardCore = new ethers.Contract(
     coreAddress,
@@ -734,13 +755,29 @@ function createContracts() {
     signer
   );
 
+
+  /* REWARD VAULT */
+
+  const rewardVaultReadABI = [
+    "function distributionPaused() view returns (bool)",
+    "function availableRewardBalance() view returns (uint256)"
+  ];
+
+  rewardVault = new ethers.Contract(
+    vaultAddress,
+    rewardVaultReadABI,
+    signer
+  );
+
+
+  /* REWARD STAKING */
+
   rewardStaking = new ethers.Contract(
     stakingAddress,
     window.REWARD_STAKING_ABI,
     signer
   );
 }
-
 
 /* =========================================================
    SET ACTIVE ACCOUNT
@@ -979,31 +1016,23 @@ async function loadRewardInfo() {
 
   setText(
     [
-      "currentRank",
-      "rank"
+      "userRank",
+      
     ],
     rankName(currentRank)
   );
 
   setText(
     [
-      "goldStatus",
-      "goldQualified"
-    ],
-    goldQualified
-      ? "ผ่านเงื่อนไข Gold"
-      : "ยังไม่ถึง Gold"
-  );
+      "rankQualified"],
+      goldQualified ? "Yes" : "No"
+    );
+    
 
   setText(
-    [
-      "organizationStatus",
-      "orgQualified"
-    ],
-    orgQualified
-      ? "ยอดองค์กรถึงเป้าหมาย"
-      : "ยอดองค์กรยังไม่ถึงเป้าหมาย"
-  );
+    [ "volumeQualified"],
+     orgQualified ? "Yes" :"No");
+     
 
   const claimButton = findElement(
     "claimBtn",
