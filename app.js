@@ -1860,6 +1860,7 @@ async function refreshAll() {
       loadNCBalance(),
       loadRewardInfo(),
       loadStakeSummary()
+       await loadSystemStatus();
     ]);
 
     await loadStakeLots();
