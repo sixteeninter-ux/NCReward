@@ -813,12 +813,12 @@ async function loadSystemStatus() {
     return;
   }
 
+  // =========================
+  // Distribution Status
+  // =========================
   try {
     const distributionPaused =
       await rewardVault.distributionPaused();
-
-    const claimPaused =
-      await rewardCore.claimPaused();
 
     setText(
       [
@@ -829,20 +829,9 @@ async function loadSystemStatus() {
         ? "Paused"
         : "Active"
     );
-
-    setText(
-      [
-        "claimSystemStatus",
-        "claimSystem"
-      ],
-      claimPaused
-        ? "Paused"
-        : "Active"
-    );
-
   } catch (error) {
     console.warn(
-      "Cannot load system status:",
+      "Cannot load distribution status:",
       error
     );
 
@@ -853,9 +842,35 @@ async function loadSystemStatus() {
       ],
       "Unavailable"
     );
+  }
+
+
+  // =========================
+  // Claim System Status
+  // =========================
+  try {
+    const claimPaused =
+      await rewardCore.claimPaused();
 
     setText(
       [
+        "claimPauseStatus",
+        "claimSystemStatus",
+        "claimSystem"
+      ],
+      claimPaused
+        ? "Paused"
+        : "Active"
+    );
+  } catch (error) {
+    console.warn(
+      "Cannot load claim status:",
+      error
+    );
+
+    setText(
+      [
+        "claimPauseStatus",
         "claimSystemStatus",
         "claimSystem"
       ],
