@@ -808,6 +808,61 @@ function createContracts() {
     signer
   );
 }
+async function loadSystemStatus() {
+  if (!rewardCore || !rewardVault) {
+    return;
+  }
+
+  try {
+    const distributionPaused =
+      await rewardVault.distributionPaused();
+
+    const claimPaused =
+      await rewardCore.claimPaused();
+
+    setText(
+      [
+        "distributionStatus",
+        "distribution"
+      ],
+      distributionPaused
+        ? "Paused"
+        : "Active"
+    );
+
+    setText(
+      [
+        "claimSystemStatus",
+        "claimSystem"
+      ],
+      claimPaused
+        ? "Paused"
+        : "Active"
+    );
+
+  } catch (error) {
+    console.warn(
+      "Cannot load system status:",
+      error
+    );
+
+    setText(
+      [
+        "distributionStatus",
+        "distribution"
+      ],
+      "Unavailable"
+    );
+
+    setText(
+      [
+        "claimSystemStatus",
+        "claimSystem"
+      ],
+      "Unavailable"
+    );
+  }
+}
 
 /* =========================================================
    SET ACTIVE ACCOUNT
