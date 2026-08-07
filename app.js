@@ -1832,15 +1832,16 @@ async function withdrawMaturedLots() {
 ========================================================= */
 
 async function refreshAll() {
-  if (
-    !userAddress ||
-    !ncToken ||
-    !rewardCore ||
-    !rewardStaking
-  ) {
-    return;
-  }
-
+  
+if (
+  !userAddress ||
+  !ncToken ||
+  !rewardCore ||
+  !rewardVault ||
+  !rewardStaking
+) {
+  return;
+}
   if (isRefreshing) {
     return;
   }
@@ -1857,11 +1858,11 @@ async function refreshAll() {
     );
 
     await Promise.all([
-      loadNCBalance(),
-      loadRewardInfo(),
-      loadStakeSummary()
-       await loadSystemStatus();
-    ]);
+  loadNCBalance(),
+  loadRewardInfo(),
+  loadStakeSummary(),
+  loadSystemStatus()
+]);
 
     await loadStakeLots();
   } catch (error) {
