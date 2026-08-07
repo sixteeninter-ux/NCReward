@@ -685,6 +685,36 @@ function getRewardVaultAddress() {
     "rewardVaultAddress"
   );
 }
+      function showContractAddresses() {
+  setText(
+    ["ncTokenAddress"],
+    getNCAddress() || "-"
+  );
+
+  setText(
+    ["legacyCoreAddress"],
+    getAddress(
+      "LEGACY_CORE",
+      "legacyCore",
+      "legacyCoreAddress"
+    ) || "-"
+  );
+
+  setText(
+    ["rewardCoreAddress"],
+    getRewardCoreAddress() || "-"
+  );
+
+  setText(
+    ["rewardVaultAddress"],
+    getRewardVaultAddress() || "-"
+  );
+
+  setText(
+    ["rewardStakingAddress"],
+    getRewardStakingAddress() || "-"
+  );
+}
 /* =========================================================
    CREATE CONTRACTS
 ========================================================= */
@@ -1051,7 +1081,7 @@ async function loadRewardInfo() {
   }
 
   await updateRewardProgress(
-    orgVolume
+    pending
   );
 }
 
@@ -1060,80 +1090,84 @@ async function loadRewardInfo() {
    REWARD PROGRESS
 ========================================================= */
 
+
 async function updateRewardProgress(
-  orgVolume
+  pendingReward
 ) {
-  let target;
+  let claimStep;
 
   try {
-    target =
-      await rewardCore
-        .requiredOrganizationVolume();
+    claimStep =
+      await rewardCore.claimStep();
   } catch (error) {
     console.warn(
-      "Cannot read organization target:",
+      "Cannot read claim step:",
       error
     );
 
-    target = ethers.parseUnits(
-      "20000",
-      18
-    );
+    claimStep =
+      ethers.parseUnits(
+        "20000",
+        18
+      );
   }
 
-  const currentNumber = Number(
-    ethers.formatUnits(
-      orgVolume,
-      18
-    )
-  );
+  if (claimStep <= 0n) {
+    return;
+  }
 
-  const targetNumber = Number(
-    ethers.formatUnits(
-      target,
-      18
-    )
-  );
+  /*
+    ตัวอย่าง
+
+    Pending 15,000
+    Progress = 15,000 / 20,000
+
+    Pending 25,000
+    เคลมได้ 20,000
+    รอบถัดไปเหลือ 5,000 / 20,000
+
+    Pending 65,000
+    เคลมได้ 60,000
+    รอบถัดไปเหลือ 5,000 / 20,000
+  */
+
+  const currentProgress =
+    pendingReward % claimStep;
 
   const percentage =
-    targetNumber > 0
-      ? Math.min(
-          100,
-          (
-            currentNumber /
-            targetNumber
-          ) * 100
-        )
-      : 0;
+    Number(
+      currentProgress * 10000n /
+      claimStep
+    ) / 100;
 
   setText(
-    [
-      "organizationTarget",
-      "rewardTarget"
-    ],
-    `${formatNC(target)} NC`
+    ["currentProgressText"],
+    `${formatNC(currentProgress)} / ${formatNC(claimStep)} NC`
   );
 
   setText(
-    [
-      "progressText",
-      "rewardProgressText"
-    ],
+    ["progressPercent"],
     `${percentage.toFixed(2)}%`
   );
 
-  const progressBar = findElement(
-    "progressBar",
-    "rewardProgressBar",
-    "progressFill"
+  setText(
+    ["claimStep"],
+    `${formatNC(claimStep)} NC`
   );
+
+  const progressBar =
+    findElement(
+      "organizationProgressBar"
+    );
 
   if (progressBar) {
     progressBar.style.width =
-      `${percentage}%`;
+      `${Math.min(
+        percentage,
+        100
+      )}%`;
   }
 }
-
 
 /* =========================================================
    LOAD NC BALANCE
@@ -1980,12 +2014,15 @@ async function autoConnect() {
 /* =========================================================
    START APP
 ========================================================= */
-
 document.addEventListener(
-  "DOMContentLoaded",
-  async () => {
-    bindEvents();
-    bindWalletEvents();
-    await autoConnect();
-  }
+    "DOMContentLoaded",
+    async () => {
+        bindEvents();
+        bindWalletEvents();
+
+        await autoConnect();
+
+        showContractAddresses();
+    }
 );
+
