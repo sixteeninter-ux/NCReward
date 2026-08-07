@@ -1028,14 +1028,14 @@ async function loadRewardInfo() {
 console.log("USER ADDRESS:", userAddress);
 console.log("REWARD INFO:", info);
 
-console.log("personalVolume:", info.personalVolume ?? info[0]);
-console.log("orgVolume:", info.orgVolume ?? info[1]);
-console.log("totalRewardEarned:", info.totalRewardEarned ?? info[2]);
-console.log("totalRewardStaked:", info.totalRewardStaked ?? info[3]);
-console.log("pending:", info.pending ?? info[4]);
-console.log("claimable:", info.claimable ?? info[5]);
-console.log("remainingAfterClaim:", info.remainingAfterClaim ?? info[6]);
-console.log("currentRank:", info.currentRank ?? info[7]);
+console.log("personalVolume:", String(info.personalVolume ?? info[0]));
+console.log("orgVolume:", String(info.orgVolume ?? info[1]));
+console.log("totalRewardEarned:", String(info.totalRewardEarned ?? info[2]));
+console.log("totalRewardStaked:", String(info.totalRewardStaked ?? info[3]));
+console.log("pending:", String(info.pending ?? info[4]));
+console.log("claimable:", String(info.claimable ?? info[5]));
+console.log("remainingAfterClaim:", String(info.remainingAfterClaim ?? info[6]));
+console.log("currentRank:", String(info.currentRank ?? info[7]));
 console.log("goldQualified:", info.goldQualified ?? info[8]);
 console.log("orgQualified:", info.orgQualified ?? info[9]);
 console.log("claimQualified:", info.claimQualified ?? info[10]);
