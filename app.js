@@ -374,6 +374,13 @@ function resetWalletConnection() {
 
 function getAddress(...keys) {
   for (const key of keys) {
+
+    // config.js ตัวใหม่
+    if (window.CONFIG?.[key]) {
+      return window.CONFIG[key];
+    }
+
+    // รองรับ config แบบเก่า
     if (window.CONTRACTS?.[key]) {
       return window.CONTRACTS[key];
     }
@@ -1071,7 +1078,7 @@ const personalVolume =
     info.orgQualified ?? info[9];
 
   const claimQualified =
-    info.claimQualified ?? info[10];
+    await rewardCore.canClaim(userAddress);
 
   setText(
     [
@@ -1392,10 +1399,11 @@ async function loadStakeLots() {
   }
 
   const container = findElement(
-    "stakeLots",
-    "stakeLotsList",
-    "lotsContainer"
-  );
+  "stakeLotsContainer",
+  "stakeLots",
+  "stakeLotsList",
+  "lotsContainer"
+);
 
   if (!container) {
     return;
@@ -1726,10 +1734,7 @@ async function claimReward() {
       "error"
     );
   } finally {
-    if (button) {
-      button.disabled = false;
-    }
-  }
+  // ให้ refreshAll() เป็นตัวกำหนดสถานะปุ่มตาม canClaim
 }
 
 
