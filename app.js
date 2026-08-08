@@ -1736,7 +1736,7 @@ async function claimReward() {
   } finally {
   // ให้ refreshAll() เป็นตัวกำหนดสถานะปุ่มตาม canClaim
 }
-
+}
 
 /* =========================================================
    WITHDRAW ONE LOT
